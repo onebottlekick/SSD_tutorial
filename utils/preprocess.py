@@ -4,6 +4,8 @@ import tarfile
 import zipfile
 from xml.etree import ElementTree
 import numpy as np
+from numpy.core.fromnumeric import resize
+from augmentation import *
 
 
 def downloader(kind='data', root='../data'):
@@ -99,3 +101,28 @@ class XML2List:
             result += [bndbox]
 
         return np.array(result)
+    
+    
+class DataTransform:
+    def __init__(self, input_size, color_mean):
+        self.data_transform = {
+            'train' : Compose([
+                ConvertImageIntToFloat(),
+                ToAbsoluteCoords(),
+                PhotometricDistort(),
+                Expand(color_mean),
+                RandomSampleCrop(),
+                RandomMirror(),
+                ToPercentCoords(),
+                Resize(input_size),
+                SubtractMeans(color_mean)
+            ]),
+            'val' : Compose([
+                ConvertImageIntToFloat(),
+                Resize(input_size),
+                SubtractMeans(color_mean)
+            ])
+        }
+        
+    def __call__(self, img, phase, boxes, labels):
+        return self.data_transform[phase](img, boxes, labels)
