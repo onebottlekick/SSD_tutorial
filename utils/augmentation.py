@@ -3,7 +3,6 @@
 # Copyright (c) 2017 Max deGroot, Ellis Brown
 
 import torch
-from torch._C import TracingState
 from torchvision import transforms
 import cv2
 import numpy as np
